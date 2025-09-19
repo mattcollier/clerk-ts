@@ -1,9 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import { clerkClient, requireAuth, getAuth } from '@clerk/express'
-import path from 'node:path'
-
-// const __dirname = import.meta.dirname;
+import jwt from 'jsonwebtoken'
 
 const app = express()
 const PORT = 8080
@@ -22,6 +20,24 @@ app.get('/protected', requireAuth(), async (req, res) => {
 
   if(auth.userId === null) {
     throw new Error('Boo')
+  }
+
+  const getToken = auth.getToken
+
+  const template = 'MyScopes'
+
+  // returns the jwt string
+  const token = await getToken({ template })
+
+  if(!token) {
+    throw new Error('Token not found.')
+  }
+
+  // jwt.verify would be better
+  const {scope} = jwt.decode(token) as {scope: string[]} ?? {scope: []}
+
+  if(!scope.includes('protected:read')) {
+    throw new Error("Not Allowed")
   }
 
   // Use Clerk's JavaScript Backend SDK to get the user's User object
