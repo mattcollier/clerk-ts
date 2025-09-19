@@ -6,20 +6,15 @@ import jwt from 'jsonwebtoken'
 const app = express()
 const PORT = 8080
 
-// app.use(clerkMiddleware())
-
+// server index.html
 app.use(express.static('static'));
-
-  // app.get('/', async(req, res) => {
-  //   res.send("foo")
-  // })
 
 app.get('/protected', requireAuth(), async (req, res) => {
   // Use `getAuth()` to get the user's `userId`
   const auth = getAuth(req)
 
   if(auth.userId === null) {
-    throw new Error('Boo')
+    throw new Error('Not Allowed')
   }
 
   const getToken = auth.getToken
